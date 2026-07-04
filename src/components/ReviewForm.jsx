@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { addReviewAction } from "@/app/products/[id]/actions";
+import { Star } from "lucide-react";
 
 const initialState = { success: false, error: null };
 
@@ -10,56 +11,91 @@ export default function ReviewForm({ productId }) {
     addReviewAction,
     initialState
   );
+  
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [formKey, setFormKey] = useState(Date.now()); // to reset form easily
+
+  useEffect(() => {
+    if (state.success) {
+      setRating(5);
+      setFormKey(Date.now());
+    }
+  }, [state.success]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-3 max-w-sm">
+    <form key={formKey} action={formAction} className="flex flex-col gap-5 w-full">
       <input type="hidden" name="productId" value={productId} />
+      <input type="hidden" name="rating" value={rating} />
 
-      <input
-        type="text"
-        name="author"
-        placeholder="Your name"
-        required
-        className="rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
-      />
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          Your Rating
+        </label>
+        <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              className="focus:outline-none transition-transform hover:scale-110"
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHoverRating(star)}
+            >
+              <Star
+                className={`h-6 w-6 transition-colors ${
+                  (hoverRating || rating) >= star
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "fill-zinc-200 text-zinc-200 dark:fill-zinc-800 dark:text-zinc-800"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
 
-      <select
-        name="rating"
-        defaultValue="5"
-        className="rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
-      >
-        {[5, 4, 3, 2, 1].map((n) => (
-          <option key={n} value={n}>
-            {n} star{n > 1 ? "s" : ""}
-          </option>
-        ))}
-      </select>
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          Name
+        </label>
+        <input
+          type="text"
+          name="author"
+          placeholder="John Doe"
+          required
+          className="w-full rounded-xl border border-black/10 bg-white/50 px-4 py-3 text-sm shadow-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-400/15 dark:border-white/10 dark:bg-black/20 dark:focus:bg-black/50"
+        />
+      </div>
 
-      <textarea
-        name="comment"
-        placeholder="Write your review..."
-        required
-        rows={3}
-        className="rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
-      />
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          Review
+        </label>
+        <textarea
+          name="comment"
+          placeholder="Share your thoughts about this product..."
+          required
+          rows={4}
+          className="w-full resize-none rounded-xl border border-black/10 bg-white/50 px-4 py-3 text-sm shadow-sm outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-400/15 dark:border-white/10 dark:bg-black/20 dark:focus:bg-black/50"
+        />
+      </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950"
+        className="mt-2 w-full rounded-xl bg-sky-500 px-4 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-sky-600 disabled:opacity-50 dark:bg-sky-600 dark:hover:bg-sky-500"
       >
-        {isPending ? "Submitting..." : "Submit review"}
+        {isPending ? "Submitting..." : "Submit Review"}
       </button>
 
       {state.error && (
-        <p className="text-sm text-red-600" role="alert">
+        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400" role="alert">
           {state.error}
-        </p>
+        </div>
       )}
       {state.success && (
-        <p className="text-sm text-green-600" role="status">
-          Review submitted, thank you!
-        </p>
+        <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/50 dark:text-green-400" role="status">
+          Your review has been submitted. Thank you!
+        </div>
       )}
     </form>
   );
