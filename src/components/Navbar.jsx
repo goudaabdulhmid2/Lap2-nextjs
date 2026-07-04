@@ -27,13 +27,6 @@ export default async function Navbar() {
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
-              <button className="relative flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white/50 text-zinc-600 transition-all hover:bg-zinc-100 hover:text-zinc-900 hover:shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white">
-                <ShoppingCart className="h-4 w-4" />
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sky-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-zinc-950">
-                  3
-                </span>
-              </button>
-              
               <form action={logoutAction}>
                 <button
                   type="submit"
