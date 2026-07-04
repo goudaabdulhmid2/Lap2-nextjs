@@ -1,18 +1,11 @@
 import Link from "next/link";
-import { ShoppingCart, LogOut, LogIn, UserPlus } from "lucide-react";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
+import { LogOut, LogIn, UserPlus } from "lucide-react";
 import { logoutAction } from "@/app/auth/actions";
+import { getUser } from "@/lib/dal";
 
 export default async function Navbar() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  let isAuthenticated = false;
-
-  if (token) {
-    const payload = await verifyToken(token);
-    if (payload) isAuthenticated = true;
-  }
+  const user = await getUser();
+  const isAuthenticated = !!user;
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-black/5 bg-white/75 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/70 transition-all">
@@ -26,7 +19,10 @@ export default async function Navbar() {
         
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
-            <>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                {user.email}
+              </span>
               <form action={logoutAction}>
                 <button
                   type="submit"
@@ -36,7 +32,7 @@ export default async function Navbar() {
                   <span>Log out</span>
                 </button>
               </form>
-            </>
+            </div>
           ) : (
             <>
               <Link

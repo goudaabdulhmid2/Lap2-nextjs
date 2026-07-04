@@ -1,29 +1,20 @@
 import { NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { updateSession } from "@/lib/session";
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
-
   const publicRoutes = ["/auth/login", "/auth/signup"];
-  
+
   if (
-    pathname.startsWith("/api") || 
-    pathname.startsWith("/_next") || 
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
     pathname.match(/\.(.*)$/)
   ) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("auth_token")?.value;
-  let isAuthenticated = false;
-
-  if (token) {
-    const payload = await verifyToken(token);
-    if (payload) {
-      isAuthenticated = true;
-    }
-  }
-
+  const sessionPayload = await updateSession();
+  const isAuthenticated = !!sessionPayload;
   const isPublicRoute = publicRoutes.includes(pathname);
 
   if (!isAuthenticated && !isPublicRoute) {
